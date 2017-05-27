@@ -5,6 +5,7 @@ import UserModel from "../../resources/user.schema";
 import MoodModel from "../../resources/mood.schema";
 import CommentModel from "../../resources/comment.schema";
 import {isNullOrUndefined} from "util";
+import {predict} from "../../api/sentiment-prediction";
 
 export class SpecificResourceRouter extends Router {
     constructor(args?: any) {
@@ -50,8 +51,16 @@ export class SpecificResourceRouter extends Router {
 
         this.post(`/VoiceRequest`, async(ctx: any) => {
             let request = ctx.request;
-            console.log('request',request)
-            console.log('fields', request.fields);
+            await predict([request.fields.title, request.fields.body], (error, result) => {
+                if (result) {
+                    console.log('YEY?', result);
+                }
+                if (error) {
+                    console.log('NOT YEY', error);
+                    // ctx.body = error;
+                    // ctx.status = HTTP_STATUS.BAD_REQUEST;
+                }
+            });
             ctx.body = {};
             ctx.status = HTTP_STATUS.OK;
         })
