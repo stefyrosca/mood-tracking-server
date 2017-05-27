@@ -78,5 +78,26 @@ export class SpecificResourceRouter extends Router {
                 ctx.body = {message: error}
             }
         });
+
+        this.post('/analyze', async(ctx: any) => {
+            let request = ctx.request;
+            let response = await new Promise((resolve, reject) => {
+                predict([request.fields.title, request.fields.body], (error, result) => {
+                    if (result) {
+                        console.log('YEY', result);
+                        resolve({body: result, status: HTTP_STATUS.OK});
+                    }
+                    if (error) {
+                        console.log('NOT YEY', error);
+                        reject({body: result, status: HTTP_STATUS.BAD_REQUEST});
+                    }
+                });
+            }).then((response) => {
+                return response
+            }).catch((err) => err);
+            // console.log('response!', response);
+            ctx.body = response.body;
+            ctx.status = response.status;//HTTP_STATUS.OK;
+        })
     }
 }

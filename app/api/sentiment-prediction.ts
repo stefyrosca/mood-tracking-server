@@ -25,7 +25,8 @@ export async function predict(resource: string[], callback) {
             // The project associated with the model.
             project: 'speech-api-151122',  // TODO: Update placeholder value.
             // The unique name for the predictive model.
-            id: 'sentiment-analysis-demo',  // TODO: Update placeholder value.
+            // id: 'sentiment-analysis-demo',  // TODO: Update placeholder value.
+            id: 'sentiment-analysis',  // TODO: Update placeholder value.
             auth: authClient,
             resource: {
                 input: {
