@@ -5,18 +5,22 @@ function authorize(callback) {
     google.auth.getApplicationDefault((err, authClient) => {
         if (err) {
             console.log('authentication failed: ', err);
-            return;
+            callback(err, null)
         }
         if (authClient.createScopedRequired && authClient.createScopedRequired()) {
             var scopes = ['https://www.googleapis.com/auth/cloud-platform'];
             authClient = authClient.createScoped(scopes);
         }
-        callback(authClient);
+        callback(null,authClient);
     })
 }
 
 export async function predict(resource: string[], callback) {
-    authorize(function (authClient) {
+    authorize(function (err, authClient) {
+        if (err) {
+            callback(err,null);
+            return;
+        }
         var request = {
             // The project associated with the model.
             project: 'speech-api-151122',  // TODO: Update placeholder value.

@@ -6,6 +6,7 @@ import MoodModel from "../../resources/mood.schema";
 import CommentModel from "../../resources/comment.schema";
 import {isNullOrUndefined} from "util";
 import {predict} from "../../api/sentiment-prediction";
+import {DB} from "../../resources/ensure.schemas";
 
 export class SpecificResourceRouter extends Router {
     constructor(args?: any) {
@@ -49,21 +50,33 @@ export class SpecificResourceRouter extends Router {
             // await next()
         });
 
-        this.post(`/VoiceRequest`, async(ctx: any) => {
-            let request = ctx.request;
-            await predict([request.fields.title, request.fields.body], (error, result) => {
-                if (result) {
-                    console.log('YEY?', result);
-                }
-                if (error) {
-                    console.log('NOT YEY', error);
-                    // ctx.body = error;
-                    // ctx.status = HTTP_STATUS.BAD_REQUEST;
-                }
-            });
-            ctx.body = {};
-            ctx.status = HTTP_STATUS.OK;
-        })
-
+        this.post(`/${Schemas.Mood}`, async(ctx: any, next: ()=>void) => {
+            try {
+                let Model = DB.model(Schemas.Mood);
+                let request = ctx.request;
+                let mood = await new Model(request.fields).save();
+                let response = await new Promise((resolve, reject) => {
+                    predict([request.fields.title, request.fields.body], (error, result) => {
+                        if (result) {
+                            console.log('YEY', result);
+                            resolve({body: result, status: HTTP_STATUS.OK});
+                        }
+                        if (error) {
+                            console.log('NOT YEY', error);
+                            reject({body: result, status: HTTP_STATUS.BAD_REQUEST});
+                        }
+                    });
+                }).then((response) => {
+                    return response
+                }).catch((err) => err);
+                // console.log('response!', response);
+                ctx.body = {sentiment: response.body, mood};
+                ctx.status = response.status;//HTTP_STATUS.OK;
+            }
+            catch (error) {
+                ctx.status = HTTP_STATUS.BAD_REQUEST;
+                ctx.body = {message: error}
+            }
+        });
     }
 }
