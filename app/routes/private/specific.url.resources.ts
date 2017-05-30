@@ -7,6 +7,7 @@ import CommentModel from "../../resources/comment.schema";
 import {isNullOrUndefined} from "util";
 import {predict} from "../../api/sentiment-prediction";
 import {DB} from "../../resources/ensure.schemas";
+import {speechToText} from "../../api/speech-to-text";
 
 export class SpecificResourceRouter extends Router {
     constructor(args?: any) {
@@ -99,5 +100,11 @@ export class SpecificResourceRouter extends Router {
             ctx.body = response.body;
             ctx.status = response.status;//HTTP_STATUS.OK;
         })
+
+        this.get('/speech', async (ctx:any)=> {
+            speechToText('./resources/audio.raw');
+            ctx.status = 200;
+            ctx.body = {};
+        });
     }
 }
