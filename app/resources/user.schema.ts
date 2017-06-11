@@ -20,7 +20,19 @@ export var UserSchema: any = new Mongoose.Schema({
     name: String,
     // lastname: String,
     email: String,
-    phone: String
+    phone: String,
+    preferences: {
+        theme: {
+            type: String,
+            default: "red-theme",
+            required: true
+        },
+        allowThemeChange: {
+            type: Boolean,
+            default: true,
+            required: true
+        }
+    }
 });
 
 UserSchema.pre('save', function(next:any) {

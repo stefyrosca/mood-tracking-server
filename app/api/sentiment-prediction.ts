@@ -21,7 +21,7 @@ export async function predict(resource: string[], callback) {
             callback(err,null);
             return;
         }
-        var request = {
+        let request = {
             // The project associated with the model.
             project: 'speech-api-151122',  // TODO: Update placeholder value.
             // The unique name for the predictive model.

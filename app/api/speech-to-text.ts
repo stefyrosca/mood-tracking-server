@@ -5,12 +5,18 @@ export function speechToText(filename) {
     const speech = Speech();
 
     const request = {
-        encoding: 'LINEAR16',
-        sampleRateHertz: 16000,
+        encoding: 'FLAC',
+        sampleRateHertz: 8000,
         languageCode: 'en-US'
     };
+    // const request = {
+    //     encoding: 'FLAC',
+    //     sampleRateHertz: 8000,
+    //     languageCode: 'en-US'
+    // };
     speech.recognize(filename, request)
         .then((results) => {
+            console.log('results', results);
             results[1].results.forEach(res => {
                 console.log('res', res)
                 console.log('res.alternatives', res.alternatives)

@@ -8,6 +8,9 @@ import {isNullOrUndefined} from "util";
 import {predict} from "../../api/sentiment-prediction";
 import {DB} from "../../resources/ensure.schemas";
 import {speechToText} from "../../api/speech-to-text";
+import {authJwt} from "../../utils/authenticate";
+
+const fsextra = require("fs-extra");
 
 export class SpecificResourceRouter extends Router {
     constructor(args?: any) {
@@ -15,7 +18,7 @@ export class SpecificResourceRouter extends Router {
 
         this.get(`/${Schemas.Mood}`, async(ctx: any, next: ()=>void) => {
             let userId = ctx.query.user;
-            let query = {}
+            let query = {};
             // let include = ctx.query.include;
             if (userId)
                 query = {user: userId};
@@ -49,6 +52,15 @@ export class SpecificResourceRouter extends Router {
                 .sort({timestamp: -1});
             ctx.status = HTTP_STATUS.OK;
             // await next()
+        });
+
+        this.put(`/${Schemas.User}/:id`, async(ctx: any, next: ()=>void) => {
+            if (ctx.params.id == ctx.state.user._id) {
+                await next();
+            } else {
+                ctx.status = HTTP_STATUS.FORBIDDEN;
+                ctx.body = {message: 'You are not authorized to do this!'};
+            }
         });
 
         this.post(`/${Schemas.Mood}`, async(ctx: any, next: ()=>void) => {
@@ -101,8 +113,22 @@ export class SpecificResourceRouter extends Router {
             ctx.status = response.status;//HTTP_STATUS.OK;
         })
 
-        this.get('/speech', async (ctx:any)=> {
-            speechToText('./resources/audio.raw');
+        this.post('/Speech', async(ctx: any)=> {
+            let files = ctx.request.files;
+            if (!files) {
+                ctx.status = HTTP_STATUS.BAD_REQUEST;
+                ctx.body = {message: 'Sorry, you should send a file!'};
+                return;
+            }
+            files.forEach(async(file) => {
+                console.log('file', file)
+                console.log('file path!', file.path);
+                // let filepath = "./resources/"+file.name;
+                let filepath = "./resources/title.flac";
+                // fsextra.copySync(file.path, filepath);
+                fsextra.removeSync(file.path);
+                speechToText(filepath);
+            });
             ctx.status = 200;
             ctx.body = {};
         });
