@@ -92,6 +92,17 @@ export class SpecificResourceRouter extends Router {
             }
         });
 
+        this.delete(`/${Schemas.Mood}/:id`, async(ctx: any, next: ()=>void) => {
+            let mood: any = await MoodModel.findOne({id: ctx.params.id});
+            if (mood.user == ctx.state.user._id) {
+                await CommentModel.remove({mood: mood._id});
+                await next();
+            } else {
+                ctx.status = HTTP_STATUS.FORBIDDEN;
+                ctx.body = {message: 'You are not authorized to do this!'};
+            }
+        });
+
         this.post('/analyze', async(ctx: any) => {
             let request = ctx.request;
             let response = await new Promise((resolve, reject) => {
@@ -111,7 +122,7 @@ export class SpecificResourceRouter extends Router {
             // console.log('response!', response);
             ctx.body = response.body;
             ctx.status = response.status;//HTTP_STATUS.OK;
-        })
+        });
 
         this.post('/Speech', async(ctx: any)=> {
             let files = ctx.request.files;
@@ -121,7 +132,7 @@ export class SpecificResourceRouter extends Router {
                 return;
             }
             files.forEach(async(file) => {
-                console.log('file', file)
+                console.log('file', file);
                 console.log('file path!', file.path);
                 // let filepath = "./resources/"+file.name;
                 let filepath = "./resources/title.flac";
