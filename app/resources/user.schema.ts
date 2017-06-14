@@ -31,6 +31,11 @@ export var UserSchema: any = new Mongoose.Schema({
             type: Boolean,
             default: true,
             required: true
+        },
+        automaticDetectMood: {
+            type: Boolean,
+            default: true,
+            required: true
         }
     }
 });

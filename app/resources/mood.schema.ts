@@ -5,11 +5,10 @@ import {UserSchema, default as UserModel} from "./user.schema";
 const EmotionTypes = {
     SAD: "sad",
     HAPPY: "happy",
-    ANGRY: "angry",
     BORED: "bored",
+    NEUTRAL: "neutral",
     EXCITED: "excited",
-    CRYING: "crying",
-    WORRIED: "worried"
+    DEPRESSED: "depressed"
 };
 
 export let MoodSchema: any = new Mongoose.Schema({
@@ -42,12 +41,13 @@ export let MoodSchema: any = new Mongoose.Schema({
     emotion: {
         type: String,
         required: true,
+        default: EmotionTypes.NEUTRAL,
         trim: true,
         validate: {
             validator: function (v: string): boolean {
-                return v == EmotionTypes.SAD || v == EmotionTypes.HAPPY || v == EmotionTypes.ANGRY ||
+                return v == EmotionTypes.SAD || v == EmotionTypes.HAPPY ||
                     v == EmotionTypes.BORED || v == EmotionTypes.EXCITED
-                    || v == EmotionTypes.CRYING || v == EmotionTypes.WORRIED;
+                    || v == EmotionTypes.DEPRESSED;
             },
             message: '{VALUE} is not a valid string!'
         },

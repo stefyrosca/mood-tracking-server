@@ -67,11 +67,10 @@ export class SpecificResourceRouter extends Router {
             try {
                 let Model = DB.model(Schemas.Mood);
                 let request = ctx.request;
-                let mood = await new Model(request.fields).save();
+                // let mood = await new Model(request.fields).save();
                 let response = await new Promise((resolve, reject) => {
                     predict([request.fields.title, request.fields.body], (error, result) => {
                         if (result) {
-                            console.log('YEY', result);
                             resolve({body: result, status: HTTP_STATUS.OK});
                         }
                         if (error) {
@@ -81,9 +80,16 @@ export class SpecificResourceRouter extends Router {
                     });
                 }).then((response) => {
                     return response
-                }).catch((err) => err);
+                }).catch((err) => {throw err});
                 // console.log('response!', response);
-                ctx.body = {sentiment: response.body, mood};
+                let sentiment = response.body;
+                let mood;
+                if (request.fields.emotion) {
+                    mood = await new Model(request.fields).save();
+                } else {
+                    mood = await new Model(Object.assign({}, request.fields, {emotion: sentiment.outputLabel})).save();
+                }
+                ctx.body = {sentiment, mood};
                 ctx.status = response.status;//HTTP_STATUS.OK;
             }
             catch (error) {
