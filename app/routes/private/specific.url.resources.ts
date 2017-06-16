@@ -18,17 +18,31 @@ export class SpecificResourceRouter extends Router {
 
         this.get(`/${Schemas.Mood}`, async(ctx: any, next: ()=>void) => {
             let userId = ctx.query.user;
+            let page = ctx.query.page;
+            let count = ctx.query.count;
             let query = {};
             // let include = ctx.query.include;
             if (userId)
                 query = {user: userId};
             let moodIds = [];
-            let moods = await MoodModel.find(query)
-                .populate('user', 'username id', UserModel)
-                .sort({timestamp: -1})
-                .exec((err, res) => {
-                    moodIds = res.map(mood => mood._id);
-                });
+            let moods;
+            if (page && count) {
+                console.log('pagination!', page, count);
+                moods = await MoodModel.find(query)
+                    .populate('user', 'username id', UserModel)
+                    .sort({timestamp: -1})
+                    .skip((page-1)*count)
+                    .limit(count*1)
+                    .exec((err, res) => {
+                        moodIds = res.map(mood => mood._id);
+                    });
+            } else
+                moods = await MoodModel.find(query)
+                    .populate('user', 'username id', UserModel)
+                    .sort({timestamp: -1})
+                    .exec((err, res) => {
+                        moodIds = res.map(mood => mood._id);
+                    });
             let commentIds = await CommentModel.find({
                 mood: {$in: moodIds}
             });
@@ -80,7 +94,9 @@ export class SpecificResourceRouter extends Router {
                     });
                 }).then((response) => {
                     return response
-                }).catch((err) => {throw err});
+                }).catch((err) => {
+                    throw err
+                });
                 // console.log('response!', response);
                 let sentiment = response.body;
                 let mood;

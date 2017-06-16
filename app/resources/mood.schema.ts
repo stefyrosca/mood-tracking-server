@@ -47,7 +47,7 @@ export let MoodSchema: any = new Mongoose.Schema({
             validator: function (v: string): boolean {
                 return v == EmotionTypes.SAD || v == EmotionTypes.HAPPY ||
                     v == EmotionTypes.BORED || v == EmotionTypes.EXCITED
-                    || v == EmotionTypes.DEPRESSED;
+                    || v == EmotionTypes.DEPRESSED || v == EmotionTypes.NEUTRAL;
             },
             message: '{VALUE} is not a valid string!'
         },
